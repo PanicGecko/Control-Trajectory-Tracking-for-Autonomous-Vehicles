@@ -226,7 +226,9 @@ int main ()
   **/
 
   PID pid_steer = PID();
-  pid_steer.Init(0.3, 0.0009, 0.2, 1.2, -1.2);
+  pid_steer.Init(0.5, 0.005, 0.3, 1.2, -1.2);
+  // pid_steer.Init(0.25, 0.0009, 0.06, 1.2, -1.2);
+  // pid_steer.Init(0.3, 0.0009, 0.2, 1.2, -1.2);
 
   PID pid_throttle = PID();
   pid_throttle.Init(0.2, 0.001, 0.02, 1, -1);
@@ -303,7 +305,17 @@ int main ()
           /**
           * TODO (step 3): compute the steer error (error_steer) from the position and the desired trajectory
           **/
-          error_steer = angle_between_points(x_position, y_position, x_points.back(), y_points.back()) - yaw;
+
+          double dis_min = 10000.0;
+          int close_id = 0;
+          for (int i = 0; i < x_points.size(); ++i) {
+            double act_dis = pow((x_position - x_points[i]), 2) + pow((y_position - y_points[i]), 2);
+            if (act_dis < dis_min) {
+              dis_min = act_dis;
+              close_id = i;
+            }
+          }
+          error_steer = angle_between_points(x_position, y_position, x_points[close_id], y_points[close_id]) - yaw;
 
           /**
           * TODO (step 3): uncomment these lines
@@ -337,7 +349,7 @@ int main ()
           * TODO (step 2): compute the throttle error (error_throttle) from the position and the desired speed
           **/
           // modify the following line for step 2
-          error_throttle = v_points.back() - velocity;
+          error_throttle = v_points[close_id] - velocity;
 
 
 
